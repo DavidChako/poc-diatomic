@@ -1,16 +1,9 @@
-import datomic.Connection
-import datomic.Peer
+package com.icosahedron.datomic.dataset
+
 import datomic.Util
 
-fun main() {
-    val databaseUri = "datomic:mem://example-db"
-    Peer.createDatabase(databaseUri)
-    println("\nDatabase created: $databaseUri")
-
-    val databaseConnection: Connection = Peer.connect(databaseUri)
-    println("\nDatabase connection established: $databaseConnection")
-
-    val schema = Util.list(
+class MovieDataset : Dataset {
+    override fun schema(): List<*> = Util.list(
         Util.map(
             ":db/cardinality", ":db.cardinality/one",
             ":db/ident", ":movie/title",
@@ -25,10 +18,7 @@ fun main() {
         )
     )
 
-    databaseConnection.transact(schema).get()
-    println("\nSchema created:\n${schema.joinToString("\n")}")
-
-    val data = Util.list(
+    override fun data(): List<*> = Util.list(
         Util.map(
             ":movie/title", "The Matrix",
             ":movie/release-year", 1999
@@ -39,21 +29,11 @@ fun main() {
         )
     )
 
-    databaseConnection.transact(data).get()
-    println("\nData added:\n${data.joinToString("\n")}")
-
-    val query = """
+    fun titleAndYearQuery() = """
         [:find ?title ?year
          :where
          [?movie :movie/title ?title]
          [?movie :movie/release-year ?year]
         ]
     """.trimIndent()
-
-    val results = Peer.q(query, databaseConnection.db())
-    println("\nExecuted query:\n$query")
-
-    println("\nQuery results:\n${results.joinToString("\n")}")
-
-    databaseConnection.release()
 }
