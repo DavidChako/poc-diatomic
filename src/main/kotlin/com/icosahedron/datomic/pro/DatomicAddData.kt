@@ -2,7 +2,6 @@ package com.icosahedron.datomic.pro
 
 import datomic.Connection
 import datomic.Peer
-import datomic.Util
 
 fun main() {
     val databaseUri = "datomic:dev://localhost:4334/hello"
