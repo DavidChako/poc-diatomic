@@ -29,7 +29,7 @@ class MovieDataset : Dataset {
         )
     )
 
-    fun titleAndYearQuery() = """
+    override fun sampleQuery() = """
         [:find ?title ?year
          :where
          [?movie :movie/title ?title]

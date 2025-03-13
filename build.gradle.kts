@@ -14,6 +14,7 @@ repositories {
 
 dependencies {
     implementation("com.datomic:peer:1.0.7277")
+    implementation("ch.qos.logback:logback-classic:1.5.17")
 
     testImplementation(platform("org.spockframework:spock-bom:$spockVersion"))
     testImplementation("org.spockframework:spock-core:$spockVersion")
