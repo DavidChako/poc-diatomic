@@ -1,6 +1,5 @@
 plugins {
-    groovy // Spock test framework
-//    java
+    groovy // Spock
     kotlin("jvm") version "2.1.10"
 }
 
