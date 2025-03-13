@@ -1,12 +1,12 @@
-package com.icosahedron.datomic.test
+package com.icosahedron.datomic.test.local
 
 import com.icosahedron.datomic.dataset.MovieDataset
 import datomic.Peer
 import org.slf4j.LoggerFactory
 import spock.lang.Specification
 
-class LocalDatomicSpec extends Specification {
-    static LOG = LoggerFactory.getLogger(LocalDatomicSpec)
+class LocalSpec extends Specification {
+    static LOG = LoggerFactory.getLogger(LocalSpec)
 
     def "build db, then setup schema, then add data, and then query local datomic database"() {
         given:

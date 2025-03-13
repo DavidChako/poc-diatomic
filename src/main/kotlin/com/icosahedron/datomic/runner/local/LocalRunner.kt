@@ -1,4 +1,4 @@
-package com.icosahedron.datomic.runner
+package com.icosahedron.datomic.runner.local
 
 import com.icosahedron.datomic.dataset.MovieDataset
 import datomic.Peer

@@ -1,4 +1,4 @@
-package com.icosahedron.datomic.runner
+package com.icosahedron.datomic.runner.remote
 
 import com.icosahedron.datomic.dataset.Dataset
 import com.icosahedron.datomic.dataset.MovieDataset

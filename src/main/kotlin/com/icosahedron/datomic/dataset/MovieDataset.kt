@@ -5,9 +5,9 @@ import datomic.Util
 class MovieDataset : Dataset {
     override fun schema(): List<*> = Util.list(
         Util.map(
-            ":db/cardinality", ":db.cardinality/one",
             ":db/ident", ":movie/title",
             ":db/valueType", ":db.type/string",
+            ":db/cardinality", ":db.cardinality/one",
             ":db/doc", "The title of the movie",
         ),
         Util.map(
