@@ -1,4 +1,4 @@
-package com.icosahedron.datomic.main
+package com.icosahedron.datomic.app
 
 import com.icosahedron.datomic.ManipulateDatomic
 import com.icosahedron.datomic.dataset.MovieDataset
