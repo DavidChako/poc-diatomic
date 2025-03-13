@@ -12,9 +12,5 @@ fun main() {
     ManipulateDatomic.addSchema(connection, dataset)
     ManipulateDatomic.addData(connection, dataset)
 
-//    val query = dataset.titleAndYearQuery()
-//    val results = ManipulateDatomic.query(connection, query)
-//    println("\nQuery results:\n${results.joinToString("\n")}")
-
     connection.release()
 }
