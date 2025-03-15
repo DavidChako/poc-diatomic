@@ -6,6 +6,7 @@ import datomic.Connection
 import datomic.Peer
 
 // assumes running transactor at uri host path
+// /Users/icosahedron/datomic/datomic-pro-1.0.7277/bin/transactor config/samples/dev-transactor-template.properties
 fun main() {
     val uri = "datomic:dev://localhost:4334/movie-db"
     val dataset = MovieDataset()
