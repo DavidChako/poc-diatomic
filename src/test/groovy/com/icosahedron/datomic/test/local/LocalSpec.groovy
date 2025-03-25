@@ -1,33 +1,40 @@
 package com.icosahedron.datomic.test.local
 
+import com.icosahedron.datomic.DatomicConfiguration
 import com.icosahedron.datomic.dataset.MovieDataset
+import datomic.Connection
 import datomic.Peer
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.test.context.ContextConfiguration
+import org.springframework.test.context.TestPropertySource
 import spock.lang.Specification
 
+@ContextConfiguration(classes = DatomicConfiguration)
+@TestPropertySource("classpath:application-test.properties")
 class LocalSpec extends Specification {
     static LOG = LoggerFactory.getLogger(LocalSpec)
 
-    def "build db, then setup schema, then add data, and then query local datomic database"() {
+    @Autowired Connection connection
+
+    def "create in-memory db, setup schema, add data, query"() {
         given:
-        def uri = 'datomic:mem:/example-db'
         def dataset = new MovieDataset()
+        def schema = dataset.schema()
 
         when:
-        Peer.createDatabase(uri)
-        LOG.info('Database created: {}', uri)
+        def datomicSchema = schema.toDatomic()
+        connection.transact(datomicSchema).get()
+        then:
+        LOG.info('Schema created:\n{}', datomicSchema.join('\n'))
 
-        def connection = Peer.connect(uri)
-        LOG.info('Connected established:\n{}', connection)
-
-        def schema = dataset.schema()
-        connection.transact(dataset.schema()).get()
-        LOG.info('Schema created:\n{}', schema.join('\n'))
-
+        when:
         def data = dataset.data()
         connection.transact(data).get()
+        then:
         LOG.info('Data added:\n{}', data.join('\n'))
 
+        when:
         def query = dataset.sampleQuery()
         def results = Peer.q(query, connection.db())
 
@@ -35,7 +42,7 @@ class LocalSpec extends Specification {
         LOG.info("Executed query:\n{}", query)
         LOG.info('Query results:\n{}', results.join('\n'))
 
-        cleanup:
-        connection.release()
+//        cleanup: <-- appears unnecessary when using datomic
+//        connection.release()
     }
 }

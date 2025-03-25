@@ -13,7 +13,7 @@ fun main() {
 
     fun initializeDatabase(uri: String, dataset: Dataset): Connection {
         val connection = Peer.connect(uri)
-        connection.transact(dataset.schema()).get()
+        connection.transact(dataset.schema().toDatomic()).get()
         connection.transact(dataset.data()).get()
         return connection
     }

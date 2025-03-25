@@ -3,20 +3,10 @@ package com.icosahedron.datomic.dataset
 import datomic.Util
 
 class MovieDataset : Dataset {
-    override fun schema(): List<*> = Util.list(
-        Util.map(
-            ":db/ident", ":movie/title",
-            ":db/valueType", ":db.type/string",
-            ":db/cardinality", ":db.cardinality/one",
-            ":db/doc", "The title of the movie",
-        ),
-        Util.map(
-            ":db/ident", ":movie/release-year",
-            ":db/valueType", ":db.type/long",
-            ":db/cardinality", ":db.cardinality/one",
-            ":db/doc", "The release year of the movie",
-        )
-    )
+    override fun schema() = Schema.Builder("movie")
+        .putField("title", Field(Field.Type.STRING, Field.Cardinality.ONE,"The title of the movie"))
+        .putField("release-year", Field(Field.Type.LONG, Field.Cardinality.ONE,"The release year of the movie"))
+        .build()
 
     override fun data(): List<*> = Util.list(
         Util.map(

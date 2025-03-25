@@ -9,7 +9,7 @@ fun main() {
 
     val dataset = MovieDataset()
     val connection = Peer.connect(uri)
-    connection.transact(dataset.schema()).get()
+    connection.transact(dataset.schema().toDatomic()).get()
     connection.transact(dataset.data()).get()
 
     val query = dataset.sampleQuery()

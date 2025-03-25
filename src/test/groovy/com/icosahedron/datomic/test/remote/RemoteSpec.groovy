@@ -1,20 +1,24 @@
 package com.icosahedron.datomic.test.remote
 
+import com.icosahedron.datomic.DatomicConfiguration
 import com.icosahedron.datomic.dataset.Dataset
 import com.icosahedron.datomic.dataset.MovieDataset
 import datomic.Connection
 import datomic.Peer
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.test.context.ContextConfiguration
 import spock.lang.Specification
 
+@ContextConfiguration(classes = DatomicConfiguration)
 class RemoteSpec extends Specification {
     static LOG = LoggerFactory.getLogger(RemoteSpec)
 
-    def "connect to (and setup if necessary), and then query remote datomic database"() {
+    @Autowired Connection connection
+
+    def "connect to and query from remote db"() {
         given:
-        def uri = 'datomic:dev://localhost:4334/movie-db'
         def dataset = new MovieDataset()
-        def connection = connectToDatabase(uri, dataset)
         def query = dataset.sampleQuery()
 
         when:
@@ -24,8 +28,8 @@ class RemoteSpec extends Specification {
         LOG.info('Executed query:\n{}', query)
         LOG.info('Query results:\n{}', results.join('\n'))
 
-        cleanup:
-        connection.release()
+        and:
+        LOG.info(connection.db())
     }
 
     static Connection connectToDatabase(String uri, Dataset dataset) {
