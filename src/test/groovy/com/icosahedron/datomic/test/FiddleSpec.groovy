@@ -1,20 +1,19 @@
-package com.icosahedron.datomic.test.remote
+package com.icosahedron.datomic.test
 
-import com.icosahedron.datomic.dataset.MovieDataset
 import datomic.Peer
 import datomic.Util
 import org.slf4j.LoggerFactory
+import spock.lang.Ignore
 import spock.lang.Specification
 
+@Ignore
 class FiddleSpec extends Specification {
     static LOG = LoggerFactory.getLogger(FiddleSpec)
 
     def "fiddle around with datomic"() {
         given:
         def uri = 'datomic:dev://localhost:4334/movie-db'
-        def dataset = new MovieDataset()
-        def connection = RemoteSpec.connectToDatabase(uri, dataset)
-
+        def connection = Peer.connect(uri)
         def db = connection.db()
 
         when:
@@ -79,7 +78,7 @@ class FiddleSpec extends Specification {
         )
 
         def txResult = connection.transact(commandoGenreChange).get()
-        LOG.info("Commando genre change transaction result: {}", txResult)
+        LOG.info('Commando genre change transaction result: {}', txResult)
 
         label = 'all-data-from-1985'
         query = '' +
