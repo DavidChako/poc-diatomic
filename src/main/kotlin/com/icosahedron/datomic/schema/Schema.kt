@@ -7,8 +7,11 @@ import kotlin.collections.component2
 import kotlin.reflect.KClass
 import kotlin.reflect.full.primaryConstructor
 
-data class Schema constructor(val entity: String, val fields: Map<String, Field>) {
+class Schema constructor(val entity: String, val fields: Map<String, Field>) {
+    override fun toString() = "Schema { entity=$entity, fields=\n${fields.entries.joinToString("\n")}\n}"
+
     fun render(): List<*> = fields.map { (name, field) -> field.toDatomic(entity, name) }
+
     fun <T: Entity> renderData(data: List<T>): List<*> = data.map { it.render(entity) }
 
 //    fun keyword(field: String) = fields[field]?.keyword ?: throw IllegalArgumentException("Field not found: $field")
@@ -41,6 +44,8 @@ data class Schema constructor(val entity: String, val fields: Map<String, Field>
     companion object {
         @JvmStatic
         fun <T : Any> fromDataClass(entity: String, javaClass: Class<T>) = fromDataClass(entity, javaClass.kotlin)
+
+        fun <T : Any> fromDataClass(dataClass: KClass<T>) = fromDataClass(dataClass.simpleName!!, dataClass)
 
         fun <T : Any> fromDataClass(entity: String, dataClass: KClass<T>): Schema {
             if (!dataClass.isData) throw IllegalArgumentException("Not a data class: $dataClass")

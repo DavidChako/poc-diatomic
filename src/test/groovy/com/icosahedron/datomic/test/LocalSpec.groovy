@@ -9,10 +9,8 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.TestPropertySource
-import spock.lang.Ignore
 import spock.lang.Specification
 
-@Ignore
 @ContextConfiguration(classes = DatomicConfiguration)
 @TestPropertySource("classpath:application-test.properties")
 class LocalSpec extends Specification {

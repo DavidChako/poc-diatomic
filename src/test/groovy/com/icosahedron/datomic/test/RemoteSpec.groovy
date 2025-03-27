@@ -11,6 +11,8 @@ import org.springframework.test.context.ContextConfiguration
 import spock.lang.Ignore
 import spock.lang.Specification
 
+// Follow prerequisites in com.icosahedron.datomic.Main.kt
+// Comment out @Ignore and don't forget to comment it back in before committing
 @Ignore
 @ContextConfiguration(classes = DatomicConfiguration)
 class RemoteSpec extends Specification {
@@ -24,15 +26,21 @@ class RemoteSpec extends Specification {
         def dataClass = Movie
 
         def schema = Schema.fromDataClass(entity, dataClass)
+        LOG.info("Generated {}", schema)
+
         def datomicSchema = schema.render()
         connection.transact(datomicSchema).get()
+        LOG.info('Applied schema:\n{}', datomicSchema.join('\n'))
 
         def data = [
                 new Movie("The Matrix", 1999),
                 new Movie("Inception", 2010)
         ]
+        LOG.info('Generated data:\n{}', data.join('\n'))
+
         def datomicData = schema.renderData(data)
         connection.transact(datomicData).get()
+        LOG.info('Included data:\n{}', datomicData.join('\n'))
 
         def query = "" +
                 "[:find ?title ?year\n" +
@@ -40,12 +48,11 @@ class RemoteSpec extends Specification {
                 " [?movie :movie/title ?title]\n" +
                 " [?movie :movie/releaseYear ?year]\n" +
                 "]"
-
         when:
+        LOG.info('Executing query:\n{}', query)
         def results = Peer.q(query, connection.db())
 
         then:
-        LOG.info('Executed query:\n{}', query)
         LOG.info('Query results:\n{}', results.join('\n'))
     }
 }

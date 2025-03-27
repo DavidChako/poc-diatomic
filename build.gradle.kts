@@ -1,7 +1,7 @@
 plugins {
     kotlin("jvm") version "2.1.20"
     kotlin("plugin.spring") version "2.1.10"
-    id("org.springframework.boot") version "3.4.3"
+    id("org.springframework.boot") version "3.4.4"
     id("io.spring.dependency-management") version "1.1.7"
     `maven-publish`
     groovy // Spock
@@ -16,10 +16,20 @@ repositories {
 }
 
 dependencies {
+    implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework:spring-context")
-    implementation("com.datomic:peer:1.0.7277")
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("ch.qos.logback:logback-classic:1.5.17")
-    implementation("org.jetbrains.kotlin:kotlin-reflect:2.1.20")
+
+    implementation("com.datomic:peer:1.0.7277")
+    implementation("org.clojure:clojure") {
+        // Fix transitive vulnerability:
+        // implementation("com.datomic:peer:1.0.7277")
+        // --> maven:org.clojure:clojure:1.10.0 is vulnerable
+        version {
+            strictly("1.12.0-alpha9")
+        }
+    }
 
     val spockVersion = "2.4-M5-groovy-4.0"
     testImplementation(platform("org.spockframework:spock-bom:$spockVersion"))
