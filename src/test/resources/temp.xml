@@ -7,7 +7,7 @@
     <version>1.0.0</version>
     <!--    <version>${CI_COMMIT_REF_NAME}</version>-->
     <packaging>pom</packaging>
-    <name>peerdata-boot</name>
+    <name>foobar-boot</name>
     <description>Parent POM for internal spring boot projects</description>
 
     <parent>
