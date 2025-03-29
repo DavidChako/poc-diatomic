@@ -20,14 +20,6 @@ repositories {
     mavenCentral()
 }
 
-//The automatic loading of test framework implementation dependencies has been deprecated.
-//This is scheduled to be removed in Gradle 9.0.
-//Declare the desired test framework directly on the test suite or explicitly
-//declare the test framework implementation dependencies on the
-//test's runtime classpath.
-//Consult the upgrading guide for further information:
-//https://docs.gradle.org/8.10/userguide/upgrading_version_8.html#test_framework_implementation_dependencies
-
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework:spring-context")

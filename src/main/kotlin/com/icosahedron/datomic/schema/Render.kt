@@ -9,6 +9,7 @@ object Render {
     fun schema(entity: String, fields: Map<String, Field>): List<*> = fields.map { (name, field) -> field.toDatomic(entity, name) }
 
     @JvmStatic
+//    fun <T: Entity> data(entity: String, data: List<T>): List<*> = data.map { item(entity, it) }
     fun <T: Entity> data(entity: String, data: List<T>): List<*> = data.map { it.render(entity) }
 
     @JvmStatic

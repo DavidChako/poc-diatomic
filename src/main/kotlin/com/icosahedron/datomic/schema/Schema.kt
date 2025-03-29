@@ -5,7 +5,7 @@ import com.icosahedron.datomic.entity.Entity
 import kotlin.reflect.KClass
 import kotlin.reflect.full.primaryConstructor
 
-class Schema constructor(val entity: String, val fields: Map<String, Field>) {
+class Schema(val entity: String, val fields: Map<String, Field>) {
     override fun toString() = "Schema { entity=$entity, fields=\n${fields.entries.joinToString("\n")}\n}"
 
     fun render(): List<*> = Render.schema(entity, fields)
@@ -13,6 +13,7 @@ class Schema constructor(val entity: String, val fields: Map<String, Field>) {
     fun renderQuery() = Render.schemaQuery(entity)
 
     fun <T: Entity> renderData(data: List<T>) = Render.data(entity, data)
+//    fun <T: Entity> renderData(data: List<T>) = Render.data(entity, data)
     fun renderDataPull(field: String, value: String) = Render.dataPull(entity, field, value)
     fun renderDataPull(field: String) = Render.dataPull(entity, field)
 
@@ -22,7 +23,7 @@ class Schema constructor(val entity: String, val fields: Map<String, Field>) {
 
     fun builder() = Builder(entity, fields)
 
-    class Builder(private val entity: String, nominalFields: Map<String, Field>) {
+    class Builder(val entity: String, nominalFields: Map<String, Field>) {
         constructor(entity: String): this(entity, mapOf())
 
         private val fields = nominalFields.toMutableMap()

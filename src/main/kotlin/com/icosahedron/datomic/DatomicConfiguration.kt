@@ -15,7 +15,6 @@ class DatomicConfiguration {
     fun connection(@Value("\${datomic.uri}") uri: String): Connection {
         if (Peer.createDatabase(uri)) {
             LOG.info("Database created: {}", uri)
-
         }
 
         val connection = Peer.connect(uri)
