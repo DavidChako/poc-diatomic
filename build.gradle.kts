@@ -3,12 +3,17 @@ plugins {
     kotlin("plugin.spring") version "2.1.10"
     id("org.springframework.boot") version "3.4.4"
     id("io.spring.dependency-management") version "1.1.7"
+    groovy
+    jacoco
     `maven-publish`
-    groovy // Spock
 }
 
 group = "com.icosahedron"
 version = "1.0.0"
+
+val jacocoMinimumInstructionCoveredRatio = 1.0
+val jacocoMinimumComplexityCoveredRatio = 1.0
+val jacocoMaximumClassMissedCount = 0.0
 
 repositories {
     mavenLocal()
@@ -38,6 +43,65 @@ dependencies {
     testImplementation("org.springframework:spring-test")
 }
 
+tasks.test {
+    useJUnitPlatform()
+
+    testLogging {
+        events("passed", "skipped", "failed")
+    }
+
+    finalizedBy(tasks.jacocoTestReport)
+    doLast {
+        println("View code coverage at:")
+        println("file://$buildDir/reports/jacoco/test/html/index.html")
+    }
+}
+
+tasks.jacocoTestCoverageVerification {
+    classDirectories.setFrom(tasks.jacocoTestReport.get().classDirectories)
+
+    violationRules {
+        rule {
+            isEnabled = true
+            element = "PACKAGE"
+
+            limit {
+                counter = "INSTRUCTION"
+                value = "COVEREDRATIO"
+                minimum = jacocoMinimumInstructionCoveredRatio.toBigDecimal()
+            }
+
+            limit {
+                counter = "COMPLEXITY"
+                value = "COVEREDRATIO"
+                minimum = jacocoMinimumComplexityCoveredRatio.toBigDecimal()
+            }
+
+            limit {
+                counter = "CLASS"
+                value = "MISSEDCOUNT"
+                minimum = jacocoMaximumClassMissedCount.toBigDecimal()
+            }
+        }
+    }
+}
+
+tasks.jacocoTestReport {
+    finalizedBy(tasks.jacocoTestCoverageVerification)
+    classDirectories.setFrom(
+        files(classDirectories.files.map { file ->
+            fileTree(file) {
+                exclude(
+                    "com/icosahedron/example/*.class",
+                    "com/icosahedron/stub/*.class",
+                    "com/icosahedron/core/*.class",
+                    "com/icosahedron/math/*.class",
+                )
+            }
+        })
+    )
+}
+
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
@@ -49,14 +113,6 @@ publishing {
             name = "local"
             url = uri("/Users/icosahedron/.m2/repository") // or mavenLocal() for ~/.m2/repository
         }
-    }
-}
-
-tasks.test {
-    useJUnitPlatform()
-
-    testLogging {
-        events("passed", "skipped", "failed")
     }
 }
 

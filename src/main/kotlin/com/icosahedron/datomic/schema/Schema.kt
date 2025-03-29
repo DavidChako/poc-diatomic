@@ -17,6 +17,7 @@ class Schema constructor(val entity: String, val fields: Map<String, Field>) {
     fun renderDataPull(field: String) = Render.dataPull(entity, field)
 
 //    fun keyword(field: String) = fields[field]?.keyword ?: throw IllegalArgumentException("Field not found: $field")
+//fun keyword(name: String) = fields[name]?.keyword ?: ""
 
 
     fun builder() = Builder(entity, fields)
