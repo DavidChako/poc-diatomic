@@ -20,12 +20,19 @@ repositories {
     mavenCentral()
 }
 
+//The automatic loading of test framework implementation dependencies has been deprecated.
+//This is scheduled to be removed in Gradle 9.0.
+//Declare the desired test framework directly on the test suite or explicitly
+//declare the test framework implementation dependencies on the
+//test's runtime classpath.
+//Consult the upgrading guide for further information:
+//https://docs.gradle.org/8.10/userguide/upgrading_version_8.html#test_framework_implementation_dependencies
+
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework:spring-context")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("ch.qos.logback:logback-classic:1.5.17")
-
     implementation("com.datomic:peer:1.0.7277")
     implementation("org.clojure:clojure") {
         // Fix transitive vulnerability:
@@ -41,6 +48,7 @@ dependencies {
     testImplementation("org.spockframework:spock-core:$spockVersion")
     testImplementation("org.spockframework:spock-spring:$spockVersion")
     testImplementation("org.springframework:spring-test")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 tasks.test {
@@ -53,7 +61,7 @@ tasks.test {
     finalizedBy(tasks.jacocoTestReport)
     doLast {
         println("View code coverage at:")
-        println("file://$buildDir/reports/jacoco/test/html/index.html")
+        println("file://${layout.buildDirectory.get()}/reports/jacoco/test/html/index.html")
     }
 }
 
