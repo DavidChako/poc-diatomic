@@ -24,6 +24,6 @@ class DatomicConfiguration {
     }
 
     companion object {
-        private val LOG = LoggerFactory.getLogger(DatomicConfiguration.javaClass)
+        private val LOG = LoggerFactory.getLogger(DatomicConfiguration::class.java)
     }
 }

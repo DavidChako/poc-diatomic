@@ -2,22 +2,22 @@ package com.icosahedron.datomic.schema
 
 import clojure.lang.Keyword
 import com.icosahedron.datomic.entity.Entity
-import kotlin.collections.component1
-import kotlin.collections.component2
 import kotlin.reflect.KClass
 import kotlin.reflect.full.primaryConstructor
 
 class Schema constructor(val entity: String, val fields: Map<String, Field>) {
     override fun toString() = "Schema { entity=$entity, fields=\n${fields.entries.joinToString("\n")}\n}"
 
-    fun render(): List<*> = fields.map { (name, field) -> field.toDatomic(entity, name) }
+    fun render(): List<*> = Render.schema(entity, fields)
+    fun renderPull() = Render.schemaPull(entity)
+    fun renderQuery() = Render.schemaQuery(entity)
 
-    fun <T: Entity> renderData(data: List<T>): List<*> = data.map { it.render(entity) }
+    fun <T: Entity> renderData(data: List<T>) = Render.data(entity, data)
+    fun renderDataPull(field: String, value: String) = Render.dataPull(entity, field, value)
+    fun renderDataPull(field: String) = Render.dataPull(entity, field)
 
 //    fun keyword(field: String) = fields[field]?.keyword ?: throw IllegalArgumentException("Field not found: $field")
 
-
-    //fun renderQuery(id: String) = "[:find (pull ?eid [*]) :where [?eid :$entity/title \"$id\"]]"
 
     fun builder() = Builder(entity, fields)
 
@@ -44,6 +44,9 @@ class Schema constructor(val entity: String, val fields: Map<String, Field>) {
     companion object {
         @JvmStatic
         fun <T : Any> fromDataClass(entity: String, javaClass: Class<T>) = fromDataClass(entity, javaClass.kotlin)
+
+        @JvmStatic
+        fun <T : Any> fromDataClass(javaClass: Class<T>) = fromDataClass(javaClass.simpleName, javaClass.kotlin)
 
         fun <T : Any> fromDataClass(dataClass: KClass<T>) = fromDataClass(dataClass.simpleName!!, dataClass)
 
