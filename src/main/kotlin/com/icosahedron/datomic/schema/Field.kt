@@ -22,11 +22,6 @@ data class Field (
         ":db/valueType", ":db.type/${type.valueType}",
         ":db/cardinality", ":db.cardinality/${cardinality.cardinality}",
         ":db/doc", description
-//
-//        ":db/ident", identifier,
-//        ":db/valueType", type.rendered,
-//        ":db/cardinality", cardinality.rendered,
-//        ":db/doc", description
     )
 
     fun extractValue(item: Any) = extractor?.extract(item) ?: type.defaultValue()
@@ -46,9 +41,6 @@ data class Field (
         }
 
         companion object {
-//            @JvmStatic
-//            fun <T> infer(type: Class<T>) = infer(type.javaClass.kotlin)
-
             fun infer(type: KType) = when (type) {
                 typeOf<String>() -> STRING
                 typeOf<Int>() -> LONG
