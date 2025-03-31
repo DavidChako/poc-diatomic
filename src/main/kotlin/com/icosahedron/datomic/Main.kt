@@ -22,7 +22,7 @@ fun main() {
     val connection = Peer.connect(uri)
     println("Established connection to uri $uri: $connection")
 
-    val schema = Schema.fromDataClass("movie", Movie::class)
+    val schema = Schema.fromDataClass(Movie::class)
     println("Generated $schema")
 
     val datomicSchema = schema.render()
@@ -42,8 +42,8 @@ fun main() {
     val query = "" +
             "[:find ?title ?year\n" +
             " :where\n" +
-            " [?movie :movie/title ?title]\n" +
-            " [?movie :movie/releaseYear ?year]\n" +
+            " [?movie :Movie/title ?title]\n" +
+            " [?movie :Movie/releaseYear ?year]\n" +
             "]"
     println("Executing query:\n$query")
 

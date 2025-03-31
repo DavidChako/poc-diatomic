@@ -13,7 +13,7 @@ import spock.lang.Specification
 
 // Follow prerequisites in com.icosahedron.datomic.Main.kt
 // Comment out @Ignore and don't forget to comment it back in before committing
-@Ignore
+//@Ignore
 @ContextConfiguration(classes = DatomicConfiguration)
 class RemoteSpec extends Specification {
     static LOG = LoggerFactory.getLogger(RemoteSpec)
@@ -22,10 +22,9 @@ class RemoteSpec extends Specification {
 
     def "connect to and query from remote db"() {
         given:
-        def entity = 'movie'
         def dataClass = Movie
-
-        def schema = Schema.fromDataClass(entity, dataClass)
+        def schema = Schema.fromDataClass(dataClass)
+        def entity = schema.entity
         LOG.info("Generated {}", schema)
 
         def datomicSchema = schema.render()
@@ -45,8 +44,8 @@ class RemoteSpec extends Specification {
         def query = "" +
                 "[:find ?title ?year\n" +
                 " :where\n" +
-                " [?movie :movie/title ?title]\n" +
-                " [?movie :movie/releaseYear ?year]\n" +
+                " [?movie :$entity/title ?title]\n" +
+                " [?movie :$entity/releaseYear ?year]\n" +
                 "]"
         when:
         LOG.info('Executing query:\n{}', query)

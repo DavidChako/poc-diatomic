@@ -23,9 +23,9 @@ class LocalSpec extends Specification {
 
     def "create in-memory db, setup schema, add data, query"() {
         given:
-        def entity = 'movie'
-        def dataClass = Movie
-        def schema = Schema.fromDataClass(entity, dataClass)
+        def schema = Schema.fromDataClass(Movie)
+        def entity = schema.entity
+        LOG.info('Schema:\n{}', schema)
 
         def data = [
                 new Movie("The Matrix", 1999),
@@ -135,9 +135,9 @@ class LocalSpec extends Specification {
     @Ignore
     def "fiddle around with datomic"() {
         given:
-        def entity = 'movie'
         def dataClass = Movie
-        def baseSchema = Schema.fromDataClass(entity, dataClass)
+        def baseSchema = Schema.fromDataClass(dataClass)
+        def entity = baseSchema.entity
         def schema = baseSchema.builder()
                 .addField('genre', Field.Type.STRING, Field.Cardinality.ONE, 'Genre of movie')
                 .build()
