@@ -221,10 +221,11 @@ class LocalSpec extends Specification {
         def commandoId = executeQuery(label, query, db).first().first()
         LOG.info('Found commandoId = {}', commandoId)
 
+        def newGenre = 'future governor'
         def commandoGenreChange = Util.list(
                 Util.map(
                         ':db/id', commandoId,
-                        genreKey, 'future governor'
+                        genreKey, newGenre
                 )
         )
 
@@ -257,7 +258,6 @@ class LocalSpec extends Specification {
                 "]"
         then:
         executeQuery(label, query, db)
-
         and:
         executeQuery(label+':prior', query, oldDb)
 
@@ -272,11 +272,70 @@ class LocalSpec extends Specification {
                 "]"
         then:
         executeQuery(label, query, db.history())
+
+        when:
+        label = 'find-commando-id-again'
+        query = "" +
+                "[:find ?e\n" +
+                " :where" +
+                "   [?e $titleKey \"Commando\"]\n" +
+                "]"
+        then:
+        def commandoIdAgain = executeQuery(label, query, db).first().first()
+        LOG.info('Found commandoIdAgain = {}', commandoIdAgain)
+        and:
+        commandoIdAgain == commandoId
+
+        when:
+        //{:tx-data [[:db/retract [:Movie/title \"Commando\"] :Movie/genre \"$newGenre\"]]}
+
+        def retraction = Util.list(
+                Util.list(":db/retract", commandoId, ":Movie/genre", newGenre)
+        )
+//        // Retract the data
+//        List<?> txData = Util.list(Util.list(":db/retract", entityId, attribute, value));
+
+        then:
+        def retractionResults = connection.transact(retraction).get()
+        LOG.info('\nExecuted retraction:\nretraction = {}\nresults:\n{}\n', retraction, retractionResults.join('\n'))
+
+        when:
+        db = connection.db()
+        label = 'retracted-genre'
+//        query = "" +
+//                "[:find ?title ?year ?genre\n" +
+//                " :where" +
+//                "   [?e $titleKey ?title]\n" +
+//                "   [?e $releaseYearKey ?year]\n" +
+//                "   [?e $genreKey ?genre]\n" +
+//                "   [?e $releaseYearKey $releaseYear]\n" +
+//                "]"
+        query = "" +
+                "[:find ?title ?year\n" +
+                " :where" +
+                "   [?e $titleKey ?title]\n" +
+                "   [?e $releaseYearKey ?year]\n" +
+                "   [?e $releaseYearKey $releaseYear]\n" +
+                "]"
+        then:
+        executeQuery(label, query, db)
+
+        when:
+        label = 'commando-genre-history-again'
+        query = "" +
+                "[:find ?genre\n" +
+                " :where" +
+                "   [?e $titleKey \"Commando\"]\n" +
+                "   [?e $genreKey ?genre]\n" +
+                "   [?e $releaseYearKey $releaseYear]\n" +
+                "]"
+        then:
+        executeQuery(label, query, db.history())
     }
 
     def executeQuery(label, query, db) {
         def results = Peer.q(query, db)
-        LOG.info('\nExecuted query:\nlabel = {}\nquery = {}\nresults:\n{}', label, query, results.join('\n'))
+        LOG.info('\nExecuted query:\nlabel = {}\nquery = {}\nresults:\n{}\n', label, query, results.join('\n'))
         results
     }
 }

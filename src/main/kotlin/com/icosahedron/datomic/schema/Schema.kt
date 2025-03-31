@@ -9,7 +9,8 @@ class Schema(val entity: String, val fields: Map<String, Field>) {
 
     fun render(): List<*> = fields.map { (name, field) -> field.render(entity, name) }
 
-    fun renderData(data: List<Any>): List<Map<Any,Any>> = data.map { item ->
+    fun <T:Any> renderData(data: List<T>): List<*> = data.map { item ->
+//    fun <T:Any> renderData(data: List<T>): List<Map<Any,Any>> = data.map { item ->
         fields.values.associate { field ->
             field.identifier to field.extractValue(item)
         }
