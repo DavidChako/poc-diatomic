@@ -1,5 +1,6 @@
 package com.icosahedron.datomic.test
 
+import clojure.lang.Keyword
 import com.icosahedron.datomic.DatomicConfiguration
 import com.icosahedron.datomic.entity.Movie
 import com.icosahedron.datomic.schema.Field
@@ -78,6 +79,59 @@ class LocalSpec extends Specification {
     }
 
     @Ignore
+    def "experiment with retraction"() {
+        given:
+        def schema = Schema.fromDataClass(Movie)
+        connection.transact(schema.render()).get()
+
+        def data = [
+                new Movie("Commando", 1985),
+                new Movie("The Matrix", 1999),
+                new Movie("Inception", 2010)
+        ]
+        connection.transact(schema.renderData(data)).get()
+
+        def entity = schema.entity
+
+        when:
+        def query = schema.renderDataPull('title')
+        then:
+        def results = executeQuery('initial pull', query, connection.db())
+
+        when:
+        def firstResult = results.first().first() as Map
+        then:
+        LOG.info('First result: {}', firstResult)
+
+        when:
+        def idKeyword = Keyword.intern('db/id')
+        def firstId = firstResult.get(idKeyword)
+
+        def titleKeyword = Keyword.intern('Movie/title')
+        def firstTitle = firstResult.get(titleKeyword)
+
+        def releaseYearKeyword = Keyword.intern('Movie/releaseYear')
+        def firstReleaseYear = firstResult.get(releaseYearKeyword)
+
+        then:
+        LOG.info('First result fields: id={}, title={}, releaseYear={}', firstId, firstTitle, firstReleaseYear)
+
+        when:
+        def retraction = [[":db/retract", firstId, ":Movie/releaseYear", firstReleaseYear]]
+        LOG.info('Executing retraction:\n{}', retraction)
+        connection.transact(retraction).get()
+        LOG.info('Executed retraction:\n{}', retraction)
+        then:
+        executeQuery('retracted pull', query, connection.db())
+
+        when:
+        connection.transact(retraction).get()
+        LOG.info('Executed retraction again:\n{}', retraction)
+        then:
+        executeQuery('retracted pull', query, connection.db())
+    }
+
+    @Ignore
     def "play with schema"() {
         given:
         def entity = 'book'
@@ -132,7 +186,7 @@ class LocalSpec extends Specification {
         revisedSchemaResults.join('\n') != initialSchemaResults.join('\n')
     }
 
-    @Ignore
+    //@Ignore
     def "fiddle around with datomic"() {
         given:
         def dataClass = Movie
@@ -146,7 +200,7 @@ class LocalSpec extends Specification {
         def titleKey = ":$entity/title".toString()
         def releaseYearKey = ":$entity/releaseYear".toString()
         def genreKey = ":$entity/genre".toString()
-        def data = Util.list(
+        def data = [
                 Util.map(
                         titleKey, 'The Matrix',
                         releaseYearKey, 1999,
@@ -162,7 +216,7 @@ class LocalSpec extends Specification {
                         releaseYearKey, 1985,
                         genreKey, "Adventure".toString()
                 )
-        )
+        ]
         connection.transact(data).get()
 
         when:
@@ -222,12 +276,12 @@ class LocalSpec extends Specification {
         LOG.info('Found commandoId = {}', commandoId)
 
         def newGenre = 'future governor'
-        def commandoGenreChange = Util.list(
-                Util.map(
-                        ':db/id', commandoId,
-                        genreKey, newGenre
-                )
-        )
+        def commandoGenreChange = [
+                [
+                        ':db/id':commandoId,
+                        (genreKey):newGenre
+                ]
+        ]
 
         def txResult = connection.transact(commandoGenreChange).get()
         LOG.info('Commando genre change transaction result: {}', txResult)
@@ -285,52 +339,6 @@ class LocalSpec extends Specification {
         LOG.info('Found commandoIdAgain = {}', commandoIdAgain)
         and:
         commandoIdAgain == commandoId
-
-        when:
-        //{:tx-data [[:db/retract [:Movie/title \"Commando\"] :Movie/genre \"$newGenre\"]]}
-
-        def retraction = Util.list(
-                Util.list(":db/retract", commandoId, ":Movie/genre", newGenre)
-        )
-//        // Retract the data
-//        List<?> txData = Util.list(Util.list(":db/retract", entityId, attribute, value));
-
-        then:
-        def retractionResults = connection.transact(retraction).get()
-        LOG.info('\nExecuted retraction:\nretraction = {}\nresults:\n{}\n', retraction, retractionResults.join('\n'))
-
-        when:
-        db = connection.db()
-        label = 'retracted-genre'
-//        query = "" +
-//                "[:find ?title ?year ?genre\n" +
-//                " :where" +
-//                "   [?e $titleKey ?title]\n" +
-//                "   [?e $releaseYearKey ?year]\n" +
-//                "   [?e $genreKey ?genre]\n" +
-//                "   [?e $releaseYearKey $releaseYear]\n" +
-//                "]"
-        query = "" +
-                "[:find ?title ?year\n" +
-                " :where" +
-                "   [?e $titleKey ?title]\n" +
-                "   [?e $releaseYearKey ?year]\n" +
-                "   [?e $releaseYearKey $releaseYear]\n" +
-                "]"
-        then:
-        executeQuery(label, query, db)
-
-        when:
-        label = 'commando-genre-history-again'
-        query = "" +
-                "[:find ?genre\n" +
-                " :where" +
-                "   [?e $titleKey \"Commando\"]\n" +
-                "   [?e $genreKey ?genre]\n" +
-                "   [?e $releaseYearKey $releaseYear]\n" +
-                "]"
-        then:
-        executeQuery(label, query, db.history())
     }
 
     def executeQuery(label, query, db) {

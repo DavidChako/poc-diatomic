@@ -17,11 +17,11 @@ data class Field (
 
     fun withExtractor(extractor: Extractor) = this.also { this.extractor = extractor }
 
-    fun render(entity: String, name: String): Map<*,*> = Util.map(
-        ":db/ident", ":$entity/$name",
-        ":db/valueType", ":db.type/${type.valueType}",
-        ":db/cardinality", ":db.cardinality/${cardinality.cardinality}",
-        ":db/doc", description
+    fun render(entity: String, name: String) = mapOf<Any,Any>(
+        ":db/ident" to ":$entity/$name",
+        ":db/valueType" to ":db.type/${type.valueType}",
+        ":db/cardinality" to ":db.cardinality/${cardinality.cardinality}",
+        ":db/doc" to description
     )
 
     fun extractValue(item: Any) = extractor?.extract(item) ?: type.defaultValue()
